@@ -37,6 +37,10 @@ contract Megusta is AccessControl{
     function addManager(address target) public onlyRole(DEFAULT_ADMIN_ROLE){
         _grantRole(ADMIN_ROLE, target);
     }
+
+    function removeManager(address target) public onlyRole(DEFAULT_ADMIN_ROLE){
+        _revokeRole(ADMIN_ROLE, target);
+    }
     
     function create_tournament(uint g_id, uint dur, bool mp_flag) public{
         uint c = count + 1;
@@ -170,18 +174,23 @@ contract Megusta is AccessControl{
         require (n != 0, "something went wrong");
 
         performance[] memory plist = performances[t_id];
-        require (plist.length / 2 == winners.length, "not enough chosen winners");
-        if (plist.length < t.min_participants){
+        uint p = plist.length;
+        uint w = winners.length;
+        require (p / 2 == w, "not enough chosen winners");
+        if (p < t.min_participants){
             uint i = 0;
-            while (i < plist.length){
+            while (i < p){
                 payable(plist[i].player).transfer(n * 0.005 ether);
                 i = i + 1;
             }
         }
         else {
             uint i = 0;
-            while(i < plist.length){
-                payable(winners[i]).transfer(n * 0.01 ether);
+            uint amt = 5000000000000000 * n + (5000000000000000 * n * p)/(4);
+            uint pay = 0;
+            while(i < w){
+                pay = amt - (i * 2 * 5000000000000000 * n)/p ;
+                payable(winners[i]).transfer(pay);
                 i = i + 1;
             }
         }
