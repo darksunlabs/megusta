@@ -28,8 +28,10 @@ contract Megusta is AccessControl{
     }
 
     uint count = 0;
+    uint constant MIN_PART = 10;
     bytes32 public constant ADMIN_ROLE =   keccak256("ADMIN_ROLE");  
-   
+    
+
     mapping (uint => tournament) public tournaments;
     mapping (uint => performance[]) public performances;
     mapping (uint => mapping (uint => uint)) public last_created; //(gid => (duration => timestamp))
@@ -49,14 +51,14 @@ contract Megusta is AccessControl{
         uint timenow = block.timestamp;
         uint st = 0;
         uint ed = 0;
-        uint mp = 0;
+        uint mp = MIN_PART;
 
         if (dur == 2){
             require (last_instance + 24*60*60 < timenow, "such tournament already ongoing");
             st = timenow;
             ed = timenow + (24*60*60);
             if (mp_flag){
-                mp = 20;
+                mp = 50;
             }
 
         }
@@ -186,12 +188,12 @@ contract Megusta is AccessControl{
         }
         else {
             uint i = 0;
-            uint amt = 5000000000000000 * n + (5000000000000000 * n * p)/(4);
-            uint pay = 0;
+            uint amt = 5000000000000000 * n +  (5000000000000000 * n)/(2);
             while(i < w){
-                pay = amt - (i * 2 * 5000000000000000 * n)/p ;
-                payable(winners[i]).transfer(pay);
+                payable(winners[i]).transfer(amt);
                 i = i + 1;
+                amt = amt + (n * 5000000000000000 * 2)/(p - 2)  ;
+
             }
         }
     }
